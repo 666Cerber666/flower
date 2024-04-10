@@ -1,0 +1,14 @@
+/* index.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+ /* Анимация для появления */
+  .slide-fade-enter-active, .slide-fade-leave-active {
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .slide-fade-enter-from, .slide-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  

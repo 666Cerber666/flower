@@ -1,25 +1,12 @@
 <template>
   <div class="p-4">
-    <TableHead :selectedItem="selectedItem" :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery"/>
+    <TableHead :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery"/>
 
     <div class="overflow-x-auto">
       <table class="w-full border-collapse border">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('name')">Name <span class="arrow-icon"  v-if="sortByField === 'name'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('uuid')">UUID <span class="arrow-icon" v-if="sortByField === 'uuid'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('state')">State <span class="arrow-icon" v-if="sortByField === 'state'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('args')">Args <span class="arrow-icon" v-if="sortByField === 'args'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('kwargs')">Kwargs <span class="arrow-icon" v-if="sortByField === 'kwargs'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('result')">Result <span class="arrow-icon" v-if="sortByField === 'result'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('received')">Received <span class="arrow-icon" v-if="sortByField === 'received'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('started')">Started <span class="arrow-icon" v-if="sortByField === 'started'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('runtime')">Runtime <span class="arrow-icon" v-if="sortByField === 'runtime'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-            <th class="relative px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 cursor-pointer" @click="sortBy('worker')">Worker <span class="arrow-icon" v-if="sortByField === 'worker'" :class="[sortOrder === 'asc' ? 'arrow-up' : 'arrow-down']"></span></th>
-          </tr>
-        </thead>
+        <TableTH :sortByField="sortByField" :sortOrder="sortOrder" @sortedData="updateSortedData"/>
         <tbody>
-          <tr v-for="(item, index) in filteredData" :key="index" :class="{ 'bg-gray-800 text-white': index % 2 !== 0 }">
+          <tr v-for="(item, index) in combinedData" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.name }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.uuid }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">
@@ -39,113 +26,112 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, computed, defineProps, defineEmits } from 'vue';
+import { useRoute } from 'vue-router';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import TableHead from '../TableHead.vue';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid'
+import TableTH from './componentsTables/TableTH.vue';
+import { fetchFlower, fetchFlowerTasks } from '../../apiFunctions/api.ts';
 import axios from 'axios';
 
+const apidata = ref([]);
+const route = useRoute();
+const flowerData = ref(null);
+const flowerId = route.query.flowerId;
+const searchQuery = ref('');
+const sortedData = ref([]);
+const sortByField = ref('name'); // Field to sort by
+const sortOrder = ref('asc'); // Sort order (asc/desc)
+const selectedItem = ref('')
 
-export default {
-  data() {
-    return {
-      data: [
-        { name: 'Task 1', uuid: 'UUID 1', state: 'completed', args: 'Args 1', kwargs: 'Kwargs 1', result: 'Result 1', received: 'Received 1', started: 'Started 1', runtime: 'Runtime 1', worker: 'Worker 1' },
-        { name: 'Task 2', uuid: 'UUID 2', state: 'in progress', args: 'Args 2', kwargs: 'Kwargs 2', result: 'Result 2', received: 'Received 2', started: 'Started 2', runtime: 'Runtime 2', worker: 'Worker 2' },
-        { name: 'Task 3', uuid: 'UUID 3', state: 'not completed', args: 'Args 3', kwargs: 'Kwargs 3', result: 'Result 3', received: 'Received 3', started: 'Started 3', runtime: 'Runtime 3', worker: 'Worker 3' }
-      ],
-      apidata:[],
-      selectedItem: '10',
-      searchQuery: '',
-      sortByField: '', // Field to sort by
-      sortOrder: 'asc' // Sort order (asc/desc)
-    };
-  },
-  components: {
-    TableHead,
-  },
-  computed: {
-    filteredData() {
-      // Sort data based on selected field and order
-      let sortedData = [...this.data];
-      if (this.sortByField) {
-        sortedData.sort((a, b) => {
-          let fieldA = a[this.sortByField].toLowerCase();
-          let fieldB = b[this.sortByField].toLowerCase();
-          if (fieldA < fieldB) return this.sortOrder === 'asc' ? -1 : 1;
-          if (fieldA > fieldB) return this.sortOrder === 'asc' ? 1 : -1;
-          return 0;
-        });
-      }
-      return sortedData.filter(item =>
-        Object.values(item).some(value =>
-          String(value).toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-      ).slice(0, this.selectedItem);
-    }
-  },
-  mounted() {
-    this.fetchData();
-  },
-  methods: {
-    getExecutionStatus(state) {
-      switch (state) {
-        case 'completed':
-          return 'Completed';
-        case 'in progress':
-          return 'In Progress';
-        case 'not completed':
-          return 'Not Completed';
-        default:
-          return state;
-      }
-    },
-    getStatusClass(state) {
-      switch (state) {
-        case 'completed':
-          return 'bg-green-200';
-        case 'in progress':
-          return 'bg-yellow-200';
-        case 'not completed':
-          return 'bg-red-200';
-        default:
-          return '';
-      }
-    },
-    updateSelectedItem(value) {
-      this.selectedItem = value;
-      this.$emit('selected-item-changed', value);
-    },
-    fetchData() {
-      axios.get('http://127.0.0.1:5000/lrange_data_from_redis')
-        .then(response => {
-          console.log(response.data);
-        })
-        .catch(error => {
-          console.error('Ошибка при получении данных:', error);
-        });
-    },
-    updateSearchQuery(searchQuery) {
-      this.searchQuery = searchQuery;
-    },
-    sortBy(field) {
-      // Toggle sort order if same field is clicked twice
-      if (field === this.sortByField) {
-        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sortOrder = 'asc';
-      }
-      this.sortByField = field;
+const props = defineProps({
+  currentPage: Number // Определение типа пропса
+});
 
-      // Add animation class to rotate the arrow
-      const arrow = document.getElementById(`arrow-${field}`);
-      arrow.classList.add('rotate-arrow');
-      // Remove animation class after animation ends
-      setTimeout(() => {
-        arrow.classList.remove('rotate-arrow');
-      }, 500); // Adjust the duration of animation if needed
+const emit = defineEmits(['update:selectedItem', 'total-pages-changed']);
+
+const totalPages = computed(() => {
+    const selectedItemValue = parseInt(props.selectedItem);
+    const totalItems = Object.values(apidata.value).length;
+    return Math.ceil(totalItems / selectedItemValue);
+});
+
+const getExecutionStatus = (state) => {
+    switch (state) {
+        case 'completed':
+            return 'Completed';
+        case 'in progress':
+            return 'In Progress';
+        case 'not completed':
+            return 'Not Completed';
+        default:
+            return state;
     }
-  }
 };
+
+const getStatusClass = (state) => {
+    switch (state) {
+        case 'completed':
+            return 'bg-green-200';
+        case 'in progress':
+            return 'bg-yellow-200';
+        case 'not completed':
+            return 'bg-red-200';
+        default:
+            return '';
+    }
+};
+
+const updateSearchQuery = (query) => {
+    searchQuery.value = query;
+};
+
+const updateSelectedItem = (value) => {
+  selectedItem.value = value; // Обновляем значение selectedItem
+};
+
+const updateSortedData = ({ sortByField: newSortByField, sortOrder: newSortOrder }) => {
+    sortByField.value = newSortByField;
+    sortOrder.value = newSortOrder;
+
+    const entries = Object.entries(apidata.value);
+    entries.sort(([keyA, valueA], [keyB, valueB]) => {
+        const fieldA = (valueA[newSortByField] || '').toLowerCase();
+        const fieldB = (valueB[newSortByField] || '').toLowerCase();
+        if (fieldA < fieldB) return newSortOrder === 'asc' ? -1 : 1;
+        if (fieldA > fieldB) return newSortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    const sortedObject = Object.fromEntries(entries);
+    sortedData.value = sortedObject;
+};
+
+const paginatedData = computed(() => {
+    const startIndex = (props.currentPage - 1) * parseInt(props.selectedItem);
+    const endIndex = startIndex + parseInt(props.selectedItem);
+    const dataArray = Object.values(apidata.value);
+    return dataArray.slice(startIndex, endIndex);
+});
+
+const combinedData = computed(() => {
+    const startIndex = (props.currentPage - 1) * parseInt(props.selectedItem);
+    const endIndex = startIndex + parseInt(props.selectedItem);
+    const dataArray = Object.values(sortedData.value);
+    const paginatedArray = dataArray.slice(startIndex, endIndex);
+    return paginatedArray;
+});
+
+onMounted(async () => {
+    apidata.value = await fetchFlowerTasks(flowerId);
+    updateSortedData({ sortByField: sortByField.value, sortOrder: sortOrder.value });
+    flowerData.value = await fetchFlower(flowerId);
+    updateSortedData({ sortByField: 'state', sortOrder: 'success' });
+    emit('total-pages-changed', totalPages.value);
+    emit('update:selectedItem', props.selectedItem);
+});
+
 </script>
 
 <style scoped>

@@ -1,0 +1,78 @@
+2024-04-17 10:07:40,233 - main - INFO - Login: user
+2024-04-17 10:07:40,248 - main - ERROR - Error getting tasks: Expecting value: line 1 column 1 (char 0)
+2024-04-17 10:08:52,401 - main - INFO - Login: user
+2024-04-17 10:08:52,401 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:08:52,401 - main - INFO - Port: 5555
+2024-04-17 10:08:52,416 - main - ERROR - Error getting tasks: Expecting value: line 1 column 1 (char 0)
+2024-04-17 10:09:20,603 - main - INFO - Login: user
+2024-04-17 10:09:20,603 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:09:20,603 - main - INFO - Port: 5555
+2024-04-17 10:09:20,603 - main - INFO - password: $2b$12$JfcNNb21oFaC1ip2GBIuc.0avywEIOk3UGuOucuG8u9Sze7evzDR2
+2024-04-17 10:09:20,603 - main - ERROR - Error getting tasks: Expecting value: line 1 column 1 (char 0)
+2024-04-17 10:09:50,248 - main - INFO - Login: user
+2024-04-17 10:09:50,248 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:09:50,248 - main - INFO - Port: 5555
+2024-04-17 10:09:50,248 - main - INFO - password: $2b$12$XRHiJHCxBhdp2TPhBClMZe5v0.ueqOQgKQDH2WlxeNuh.z3mQjxVK
+2024-04-17 10:09:50,263 - main - ERROR - Error getting tasks: Expecting value: line 1 column 1 (char 0)
+2024-04-17 10:26:48,268 - main - INFO - Login: user
+2024-04-17 10:26:48,268 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:26:48,268 - main - INFO - Port: 5555
+2024-04-17 10:26:48,268 - main - INFO - password: password
+2024-04-17 10:26:49,353 - main - ERROR - Error getting tasks: 'dict' object has no attribute 'json'
+2024-04-17 10:27:22,630 - main - INFO - Login: user
+2024-04-17 10:27:22,630 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:27:22,630 - main - INFO - Port: 5555
+2024-04-17 10:27:22,630 - main - INFO - password: password
+2024-04-17 10:28:31,826 - main - INFO - Login: user
+2024-04-17 10:28:31,826 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:28:31,826 - main - INFO - Port: 5555
+2024-04-17 10:28:31,826 - main - INFO - password: password
+2024-04-17 10:28:32,800 - main - ERROR - Error getting tasks: 0
+2024-04-17 10:28:53,757 - main - INFO - Login: user
+2024-04-17 10:28:53,757 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:28:53,757 - main - INFO - Port: 5555
+2024-04-17 10:28:53,757 - main - INFO - password: password
+2024-04-17 10:28:54,778 - main - ERROR - Error getting tasks: 'dict' object has no attribute 'uuid'
+2024-04-17 10:29:06,079 - main - INFO - Login: user
+2024-04-17 10:29:06,079 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:29:06,079 - main - INFO - Port: 5555
+2024-04-17 10:29:06,079 - main - INFO - password: password
+2024-04-17 10:30:45,195 - main - INFO - Login: user
+2024-04-17 10:30:45,195 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:30:45,195 - main - INFO - Port: 5555
+2024-04-17 10:30:45,195 - main - INFO - password: password
+2024-04-17 10:30:46,146 - main - ERROR - Error getting tasks: 'dict' object has no attribute 'name'
+2024-04-17 10:31:02,988 - main - INFO - Login: user
+2024-04-17 10:31:02,988 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:31:02,988 - main - INFO - Port: 5555
+2024-04-17 10:31:02,988 - main - INFO - password: password
+2024-04-17 10:36:59,724 - main - INFO - Login: user
+2024-04-17 10:36:59,724 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:36:59,724 - main - INFO - Port: 5555
+2024-04-17 10:36:59,724 - main - INFO - password: password
+2024-04-17 10:41:03,960 - main - INFO - Login: user
+2024-04-17 10:41:03,960 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:41:03,960 - main - INFO - Port: 5555
+2024-04-17 10:41:03,960 - main - INFO - password: password
+2024-04-17 10:42:15,710 - main - INFO - Login: user
+2024-04-17 10:42:15,710 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:42:15,710 - main - INFO - Port: 5555
+2024-04-17 10:42:15,710 - main - INFO - password: password
+2024-04-17 10:45:13,139 - main - INFO - Login: user
+2024-04-17 10:45:13,139 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:45:13,139 - main - INFO - Port: 5555
+2024-04-17 10:45:13,139 - main - INFO - password: password
+2024-04-17 10:45:49,820 - main - INFO - Login: user
+2024-04-17 10:45:49,820 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:45:49,820 - main - INFO - Port: 5555
+2024-04-17 10:45:49,820 - main - INFO - password: password
+2024-04-17 10:54:49,918 - main - INFO - Login: user
+2024-04-17 10:54:49,918 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:54:49,918 - main - INFO - Port: 5555
+2024-04-17 10:54:49,918 - main - INFO - password: password
+2024-04-17 10:54:53,795 - main - INFO - Login: user
+2024-04-17 10:54:53,795 - main - INFO - Ip: 127.0.0.1
+2024-04-17 10:54:53,795 - main - INFO - Port: 5555
+2024-04-17 10:54:53,795 - main - INFO - password: password
+2024-04-17 18:03:49,076 - main - ERROR - Error getting tasks: HTTPConnectionPool(host='127.0.0.1', port=5555): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000152DE2DE870>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+2024-04-17 18:04:00,114 - main - ERROR - Error getting tasks: HTTPConnectionPool(host='127.0.0.1', port=5555): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000152DE3E1A90>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))

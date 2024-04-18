@@ -134,7 +134,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .arrow-icon {
   position: absolute;
   right: 10px;

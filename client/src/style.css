@@ -14,6 +14,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body{
+  height:100vh;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -40,7 +44,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #747bff;
 }
 button:focus,
 button:focus-visible {
@@ -61,5 +65,8 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  button:hover {
+    background-color: #747bff;
   }
 }

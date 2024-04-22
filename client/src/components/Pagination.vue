@@ -36,7 +36,7 @@
             <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
           </a>
           <!-- Кнопки с номерами страниц -->
-          <template v-for="page in totalPages">
+          <template v-for="page in nearestPages">
             <a href="#" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" :class="{ 'bg-indigo-600 text-white': page === currentPage }" @click="goToPage(page)">
               {{ page }}
             </a>
@@ -109,10 +109,41 @@ function goToPage(page) {
 const startIndex = computed(() => (props.currentPage - 1) * parseInt(props.selectedItem) + 1);
 const endIndex = computed(() => Math.min(startIndex.value + parseInt(props.selectedItem) - 1, props.totalPages));
 
-// Следим за изменениями props.selectedItem и обновляем itemsPerPage
+const localSelectedItem = ref(props.selectedItem); // Создаем локальную переменную, которая будет изменяться
+
 watch(() => props.selectedItem, (newValue) => {
-  props.selectedItem = newValue;
+  localSelectedItem.value = newValue; // Обновляем локальную переменную
   emits('page-changed', 1); // Переходим на первую страницу при изменении количества элементов на странице
+});
+
+const nearestPages = computed(() => {
+  const currentPage = props.currentPage;
+  const totalPages = props.totalPages;
+
+  let startPage = currentPage - 1;
+  let endPage = currentPage + 1;
+
+  // Ограничение начальной и конечной страницы, чтобы не выходить за границы
+  startPage = Math.max(startPage, 1);
+  endPage = Math.min(endPage, totalPages);
+
+  // Если текущая страница близка к началу, дополнить страницы до 3
+  if (currentPage <= 2) {
+    endPage = Math.min(endPage + (2 - currentPage), totalPages);
+  }
+
+  // Если текущая страница близка к концу, дополнить страницы до 3
+  if (currentPage >= totalPages - 1) {
+    startPage = Math.max(startPage - (currentPage - (totalPages - 1)), 1);
+  }
+
+  // Формирование массива страниц для отображения
+  const pages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pages.push(i);
+  }
+
+  return pages;
 });
 
 onMounted(() => {

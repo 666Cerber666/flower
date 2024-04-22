@@ -1,23 +1,23 @@
 <template>
   <div class="p-4">
-    <TableHead :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery"/>
+    <TableHead @update:selectedWorker="updateSelectedWorker" :current-page="currentPage" :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery" :workers="workers.length ? workers : []"/>
 
     <div class="overflow-x-auto">
-      <table class="w-full border-collapse border">
-        <TableTH :sortByField="sortByField" :sortOrder="sortOrder" @sortedData="updateSortedData"/>
+      <table class="w-full border-collapse border mb-16">
+        <TableTH :currentPage="currentPage" :sortByField="sortByField" :sortOrder="sortOrder" @sortedData="updateSortedData"/>
         <tbody>
-          <tr v-for="(item, index) in combinedData" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
+          <tr v-for="(item, index) in filteredData" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.name }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.uuid }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">
-              <div :class="[getStatusClass(item.state), 'rounded-full flex justify-center font-bold text-black']">{{ getExecutionStatus(item.state) }}</div>
+              <div class='rounded-full flex justify-center font-bold text-black' :class="getStatusClass(item.state)">{{ item.state }}</div>
             </td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.args }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.kwargs }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.result }}</td>
-            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.received }}</td>
-            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.started }}</td>
-            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.runtime }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ formatTimestamp(item.received) }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ formatTimestamp(item.started) }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ formatRuntime(item.runtime) }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.worker }}</td>
           </tr>
         </tbody>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineProps, defineEmits } from 'vue';
+import { ref, onMounted, computed, defineProps, defineEmits, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import TableHead from '../TableHead.vue';
@@ -43,45 +43,42 @@ const searchQuery = ref('');
 const sortedData = ref([]);
 const sortByField = ref('name'); // Field to sort by
 const sortOrder = ref('asc'); // Sort order (asc/desc)
-const selectedItem = ref('')
+const selectedItem = ref('10');
+const workers = ref([]);
+const selectedWorker = ref('');
 
 const props = defineProps({
-  currentPage: Number // Определение типа пропса
+  currentPage: Number,
 });
 
 const emit = defineEmits(['update:selectedItem', 'total-pages-changed']);
 
-const totalPages = computed(() => {
-    const selectedItemValue = parseInt(props.selectedItem);
-    const totalItems = Object.values(apidata.value).length;
-    return Math.ceil(totalItems / selectedItemValue);
-});
-
-const getExecutionStatus = (state) => {
-    switch (state) {
-        case 'completed':
-            return 'Completed';
-        case 'in progress':
-            return 'In Progress';
-        case 'not completed':
-            return 'Not Completed';
-        default:
-            return state;
-    }
-};
-
 const getStatusClass = (state) => {
-    switch (state) {
-        case 'completed':
-            return 'bg-green-200';
-        case 'in progress':
-            return 'bg-yellow-200';
-        case 'not completed':
-            return 'bg-red-200';
-        default:
-            return '';
-    }
+  switch (state) {
+    case 'SUCCESS':
+      return 'text-green-500'; // Зеленый цвет для успешного выполнения
+    case 'FAILURE':
+      return 'text-red-500'; // Красный цвет для неудачного выполнения
+    case 'STARTED':
+      return 'text-yellow-500'; // Желтый цвет для задач, которые находятся в процессе выполнения
+    default:
+      return ''; // По умолчанию, если статус не определен, вернем пустую строку
+  }
 };
+
+const updateSelectedWorker = (newValue) => {
+  selectedWorker.value = newValue; // Обновляем значение selectedWorker
+};
+
+const totalPages = computed(() => {
+    const selectedItemValue = parseInt(selectedItem.value);
+    const totalItems = Object.values(apidata.value).length;
+    if (totalItems <= selectedItemValue) {
+        return 1; // Вернуть 1, если количество элементов меньше или равно selectedItem
+    } else {
+        return Math.ceil(totalItems / selectedItemValue);
+    }
+});
 
 const updateSearchQuery = (query) => {
     searchQuery.value = query;
@@ -109,27 +106,85 @@ const updateSortedData = ({ sortByField: newSortByField, sortOrder: newSortOrder
 };
 
 const paginatedData = computed(() => {
-    const startIndex = (props.currentPage - 1) * parseInt(props.selectedItem);
-    const endIndex = startIndex + parseInt(props.selectedItem);
+    const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
+    const endIndex = startIndex + parseInt(selectedItem.value);
     const dataArray = Object.values(apidata.value);
     return dataArray.slice(startIndex, endIndex);
 });
 
 const combinedData = computed(() => {
-    const startIndex = (props.currentPage - 1) * parseInt(props.selectedItem);
-    const endIndex = startIndex + parseInt(props.selectedItem);
+    const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
+    const endIndex = startIndex + parseInt(selectedItem.value);
     const dataArray = Object.values(sortedData.value);
     const paginatedArray = dataArray.slice(startIndex, endIndex);
     return paginatedArray;
 });
 
+const filteredData = computed(() => {
+    if (!searchQuery.value.trim() && !selectedWorker.value) {
+        // Если строка поиска пуста и выбранный воркер не установлен, верните все данные
+        return combinedData.value;
+    } else {
+        // Иначе фильтруйте данные на основе searchQuery и/или selectedWorker
+        const query = searchQuery.value.trim().toLowerCase();
+        const worker = selectedWorker.value.toLowerCase();
+        return combinedData.value.filter(item => {
+            // Фильтруйте данные по значениям полей name и worker
+            const nameMatches = item.name.toLowerCase().includes(query);
+            const workerMatches = worker ? item.worker.toLowerCase() === worker : true; // Если выбран воркер, проверяем его соответствие
+            return nameMatches && workerMatches;
+        });
+    }
+});
+
+const formatTimestamp = (timestamp) => {
+  if (timestamp === null) {
+    return null;
+  }
+  
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatRuntime = (runtime) => {
+  const hours = Math.floor(runtime / 3600);
+  const minutes = Math.floor((runtime % 3600) / 60);
+  const seconds = Math.floor(runtime % 60);
+  
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+
 onMounted(async () => {
-    apidata.value = await fetchFlowerTasks(flowerId);
+    const responseData = await fetchFlowerTasks(flowerId);
+    apidata.value = responseData;
     updateSortedData({ sortByField: sortByField.value, sortOrder: sortOrder.value });
     flowerData.value = await fetchFlower(flowerId);
     updateSortedData({ sortByField: 'state', sortOrder: 'success' });
     emit('total-pages-changed', totalPages.value);
-    emit('update:selectedItem', props.selectedItem);
+    emit('update:selectedItem', selectedItem.value);
+
+    // Заполнение списка workers
+    const uniqueWorkers = new Set();
+    Object.values(apidata.value).forEach(item => {
+        uniqueWorkers.add(item.worker);
+    });
+    workers.value = Array.from(uniqueWorkers);
+
+});
+
+
+watch(selectedItem, (newValue, oldValue) => {
+  selectedItem.value = newValue;
+  emit('update:selectedItem', newValue);
+  emit('total-pages-changed', totalPages.value);
 });
 
 </script>

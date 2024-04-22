@@ -29,7 +29,7 @@
     <div class="overflow-x-auto mb-6">
       <div class="grid grid-cols-1 gap-4 justify-center">
         <div v-for="(item, index) in filteredItems" :key="index" :class="{ [getStatusClass(item.status)]: true, 'border bg-gray-100 font-bold': index % 2 !== 0 }" class="grid grid-cols-3 p-4 border border-gray-300 rounded-md shadow-md hover:shadow-lg transition duration-300">
-          <router-link :to="getRouterLink(item)" class="w-full text-center font-bold">{{ item.name }}</router-link>
+          <router-link :to="getRouterLink(item)" class="w-full text-center font-bold p-2">{{ item.name }}</router-link>
         <div class="w-full text-center font-bold flex items-center justify-center">
             <div class='status-background rounded-full font-bold p-2'><p :class="[getTextStatusColor(item.status)]">{{item.status}}</p></div>
         </div>
@@ -217,19 +217,6 @@ const deleteFlowerItem = (flowerId) => {
   const handleDeleteClick = (flowerId) => {
     if (confirm("Вы уверены, что хотите удалить этот цветок?")) {
       deleteFlowerItem(flowerId);
-    }
-  };
-  
-  const getExecutionStatus = (status) => {
-    switch (status) {
-      case 'Completed':
-        return 'Completed';
-      case 'In Progress':
-        return 'In Progress';
-      case 'Not Completed':
-        return 'Not Completed';
-      default:
-        return status;
     }
   };
   

@@ -209,7 +209,7 @@ async def delete_flower(flower_id: int, background_tasks: BackgroundTasks):
 
 
 @app.get("/flowers")
-async def get_flowers():
+async def get_flowers(background_tasks: BackgroundTasks):
     try:
         conn = sqlite3.connect('flowers.db')
         cursor = conn.cursor()
@@ -218,6 +218,9 @@ async def get_flowers():
         
         flowers = []
         for flower_id, name, ip, port, login, status, password in flowers_data:
+            # Update flower status
+            background_tasks.add_task(update_flower_status, flower_id, ip, port, login, password)
+            
             flower_dict = {
                 "id": flower_id,
                 "name": name,
@@ -228,7 +231,6 @@ async def get_flowers():
                 "password": password
             }
             flowers.append(flower_dict)
-        
         return flowers
     except Exception as e:
         print(f"Error getting flowers: {e}")
@@ -274,3 +276,4 @@ async def get_tasks(flower_id: int, flower_data: dict = Depends(get_flower)):
     except Exception as e:
         logger.error(f"Error getting tasks: {e}")
         raise
+

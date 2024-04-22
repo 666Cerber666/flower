@@ -1,33 +1,27 @@
 <template>
   <Header :navigation="navigation" @navigate="handleNavigation" />
-  <TableTasks :selectedItem="selectedItem" @selected-item-changed="updateSelectedItem" :total-pages="totalPages" :current-page="currentPage" @page-changed="handlePageChange" v-if="currentTable === 'задачи'" :query="$route.query"/>
-  <TableWorkers :selectedItem="selectedItem" @selected-item-changed="selectedItem = $event" :currentPage="currentPage" @page-changed="handlePageChange" v-else-if="currentTable === 'пользователи'" :query="$route.query" />
-  <TableBrokers :selectedItem="selectedItem" @selected-item-changed="selectedItem = $event" :currentPage="currentPage" @page-changed="handlePageChange" v-else-if="currentTable === 'заказчики'" :query="$route.query" />
-  <Pagination :selected-item="selectedItem" @selected-item-changed="selectedItem = $event" :total-pages="totalPages" :current-page="currentPage" @page-changed="handlePageChange" />
+  <TableTasks :selectedItem="selectedItem" @update:selectedItem="updateSelectedItem" @total-pages-changed="updateTotalPages" :current-table="currentTable"  @page-changed="handlePageChange" :current-page="currentPage" v-if="currentTable === 'задачи'" :query="$route.query"/>
+  <TableWorkers :selectedItem="selectedItem" @update:selectedItem="updateSelectedItem" @total-pages-changed="updateTotalPages" :current-table="currentTable" @page-changed="handlePageChange" :current-page="currentPage" v-else-if="currentTable === 'пользователи'" :query="$route.query" />
+  <Pagination :selectedItem="selectedItem" :totalPages="totalPagesComputed" :currentPage="currentPage" @page-changed="handlePageChange" />
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref, watch, computed, provide } from 'vue';
 import Header from '../components/Header.vue';
-import TableHead from '../components/TableHead.vue';
 import TableTasks from '../components/tables/TableTasks.vue';
 import TableWorkers from '../components/tables/TableWorkers.vue';
-import TableBrokers from '../components/tables/TableBrokers.vue';
 import Pagination from '../components/Pagination.vue';
 
 const currentTable = ref('задачи');
 const currentPage = ref(1);
-const totalPages = ref(0);
-const selectedItem = ref('');
+const selectedItem = ref('10');
 
 const navigation = ref([
   { name: 'Задачи', current: true },
   { name: 'Пользователи', current: false },
-  { name: 'Заказчики', current: false },
 ]);
 
 const handleNavigation = (item) => {
-  console.log(`Navigated to ${item.name}`);
   currentTable.value = item.name.toLowerCase();
   navigation.value.forEach(navItem => {
     navItem.current = navItem.name === item.name;
@@ -35,17 +29,47 @@ const handleNavigation = (item) => {
 };
 
 const handlePageChange = (page) => {
-  console.log(`Navigated to page ${page}`);
   currentPage.value = page;
-};
-
-const updateSearchQuery = (value) => {
-  // Обработка обновления поискового запроса
 };
 
 const updateSelectedItem = (value) => {
     selectedItem.value = value;
 };
+
+const totalPagesTasks = ref(0);
+const totalPagesWorkers = ref(0);
+const totalPagesBrokers = ref(0);
+
+const totalPagesComputed = computed(() => {
+  if (currentTable.value === 'задачи') {
+    return totalPagesTasks.value;
+  } else if (currentTable.value === 'пользователи') {
+    return totalPagesWorkers.value;
+  } else if (currentTable.value === 'заказчики') {
+    return totalPagesBrokers.value;
+  }
+});
+
+const updateTotalPages = (pages) => {
+  if (currentTable.value === 'задачи') {
+    totalPagesTasks.value = pages;
+  } else if (currentTable.value === 'пользователи') {
+    totalPagesWorkers.value = pages;
+  } else if (currentTable.value === 'заказчики') {
+    totalPagesBrokers.value = pages;
+  }
+};
+
+provide('currentTable', currentTable);
+
+onMounted(() => {
+  updateTotalPages(totalPagesComputed.value);
+});
+
+watch(selectedItem, (newValue, oldValue) => {
+  selectedItem.value = newValue;
+});
+
 </script>
 
 <style>

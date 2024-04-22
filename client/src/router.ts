@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import Login from './pages/Login.vue';
 import Register from './pages/Register.vue';
 import Tables from './pages/Tables.vue';
+import WorkerTasks from './pages/WorkerTasks.vue';
 import Profile from './pages/Profile.vue';
 
 const routes: Array<RouteRecordRaw> = [
@@ -27,6 +28,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/Profile',
     name: 'Profile',
     component: Profile,
+    meta: { requiresAuth: true } // Разрешаем доступ всем пользователям
+  },
+  {
+    path: '/WorkerTasks',
+    name: 'WorkerTasks',
+    component: WorkerTasks,
     meta: { requiresAuth: true } // Разрешаем доступ всем пользователям
   },
 ];

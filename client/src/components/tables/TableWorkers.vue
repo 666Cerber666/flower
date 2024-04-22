@@ -1,140 +1,196 @@
 <template>
-    <div class="p-4">
-      <TableHead :selectedItem="selectedItem" :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery"/>
-  
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse border">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Name</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">UUID</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">State</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Args</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Kwargs</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Result</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Received</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Started</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Runtime</th>
-              <th class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6">Worker</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in filteredData" :key="index" :class="{ 'bg-gray-800 text-white': index % 2 !== 0 }">
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.name }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.uuid }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">
-                <div :class="[getStatusClass(item.state), 'rounded-full flex justify-center font-bold text-black']">{{ getExecutionStatus(item.state) }}</div>
-              </td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.args }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.kwargs }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.result }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.received }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.started }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.runtime }}</td>
-              <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.worker }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <div class="p-4">
+    <TableHead @update:selectedWorker="updateSelectedWorker" :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery" :workers="workers.length ? workers : []"/>
+
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse border mb-16">
+        <TableTH :currentPage="currentPage" :sortByField="sortByField" :sortOrder="sortOrder" @sortedData="updateSortedData"/>
+        <tbody>
+          <tr v-for="(worker, index) in uniqueWorkers" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
+            <router-link :to="getRouterLink(worker, flowerId)"><td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ worker }}</td></router-link>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center" :class="{ 'text-green-500': isOnline(worker), 'text-red-500': !isOnline(worker) }">{{ isOnline(worker) ? 'Online' : 'Offline' }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ getStartedCountForWorker(worker) }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ getFailedCountForWorker(worker) }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ getSuccessCountForWorker(worker) }}</td>
+            <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ getRetriedCountForWorker(worker) }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </template>
-  
-  <script>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, computed, defineProps, defineEmits, watch } from 'vue';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import TableHead from '../TableHead.vue';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid'
+import TableTH from './componentsTables/TableTH.vue';
+import { fetchFlower, fetchFlowerTasks } from '../../apiFunctions/api.ts';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
 
-export default {
-  data() {
-    return {
-      data: [
-        { name: 'Worker 1', uuid: 'UUID 1', state: 'completed', args: 'Args 1', kwargs: 'Kwargs 1', result: 'Result 1', received: 'Received 1', started: 'Started 1', runtime: 'Runtime 1', worker: 'Worker 1' },
-        { name: 'Worker 2', uuid: 'UUID 2', state: 'in progress', args: 'Args 2', kwargs: 'Kwargs 2', result: 'Result 2', received: 'Received 2', started: 'Started 2', runtime: 'Runtime 2', worker: 'Worker 2' },
-        { name: 'Worker 3', uuid: 'UUID 3', state: 'not completed', args: 'Args 3', kwargs: 'Kwargs 3', result: 'Result 3', received: 'Received 3', started: 'Started 3', runtime: 'Runtime 3', worker: 'Worker 3' }
-      ],
-      selectedItem: '10',
-      searchQuery: '',
-      sortByField: '', // Field to sort by
-      sortOrder: 'asc' // Sort order (asc/desc)
-    };
-  },
-  components: {
-    TableHead,
-  },
-  computed: {
-    filteredData() {
-      // Sort data based on selected field and order
-      let sortedData = [...this.data];
-      if (this.sortByField) {
-        sortedData.sort((a, b) => {
-          let fieldA = a[this.sortByField].toLowerCase();
-          let fieldB = b[this.sortByField].toLowerCase();
-          if (fieldA < fieldB) return this.sortOrder === 'asc' ? -1 : 1;
-          if (fieldA > fieldB) return this.sortOrder === 'asc' ? 1 : -1;
-          return 0;
-        });
-      }
-      return sortedData.filter(item =>
-        Object.values(item).some(value =>
-          String(value).toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-      ).slice(0, this.selectedItem);
-    }
-  },
-  methods: {
-    getExecutionStatus(state) {
-      switch (state) {
-        case 'completed':
-          return 'Completed';
-        case 'in progress':
-          return 'In Progress';
-        case 'not completed':
-          return 'Not Completed';
-        default:
-          return state;
-      }
-    },
-    getStatusClass(state) {
-      switch (state) {
-        case 'completed':
-          return 'bg-green-200';
-        case 'in progress':
-          return 'bg-yellow-200';
-        case 'not completed':
-          return 'bg-red-200';
-        default:
-          return '';
-      }
-    },
-    updateSelectedItem(value) {
-      this.selectedItem = value;
-      this.$emit('selected-item-changed', value);
-    },
+const route = useRoute();
+const apidata = ref([]);
+const workerKeys = ref([]);
+const filteredData = ref([]);
+const responseData = ref(null);
+const flowerData = ref(null);
+const flowerId = route.query.flowerId;
+const searchQuery = ref('');
+const sortedData = ref([]);
+const sortByField = ref('name'); // Field to sort by
+const sortOrder = ref('asc'); // Sort order (asc/desc)
+const selectedItem = ref('10');
+const workers = ref([]);
+const selectedWorker = ref('');
 
-    updateSearchQuery(searchQuery) {
-      this.searchQuery = searchQuery;
-    },
-    sortBy(field) {
-      // Toggle sort order if same field is clicked twice
-      if (field === this.sortByField) {
-        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-      } else {
-        this.sortOrder = 'asc';
-      }
-      this.sortByField = field;
+const props = defineProps({
+  currentPage: Number,
+});
 
-      // Add animation class to rotate the arrow
-      const arrow = document.getElementById(`arrow-${field}`);
-      arrow.classList.add('rotate-arrow');
-      // Remove animation class after animation ends
-      setTimeout(() => {
-        arrow.classList.remove('rotate-arrow');
-      }, 500); // Adjust the duration of animation if needed
-    }
-  }
+const getRouterLink = (worker, flowerId) => {
+        return { 
+            name: 'WorkerTasks', 
+            query: { flowerId: flowerId, worker: worker }
+        };
 };
+
+const emit = defineEmits(['update:selectedItem', 'total-pages-changed']);
+
+// Функция для группировки данных по worker
+const groupDataByWorker = () => {
+  const grouped = {};
+  apidata.value.forEach(item => {
+    const worker = item.worker;
+    if (!grouped[worker]) {
+      grouped[worker] = [];
+    }
+    grouped[worker].push(item);
+  });
+  return grouped;
+};
+
+const updateSelectedWorker = (newValue) => {
+  selectedWorker.value = newValue; // Обновляем значение selectedWorker
+};
+
+const totalPages = computed(() => {
+  const selectedItemValue = parseInt(selectedItem.value);
+  const totalItems = uniqueWorkers.length;
+  if (totalItems <= selectedItemValue) {
+    return 1; // Вернуть 1, если количество элементов меньше или равно selectedItem
+  } else {
+    return Math.ceil(totalItems / selectedItemValue);
+  }
+});
+
+const updateSearchQuery = (query) => {
+  searchQuery.value = query;
+};
+
+const updateSelectedItem = (value) => {
+  selectedItem.value = value; // Обновляем значение selectedItem
+};
+
+const updateSortedData = ({ sortByField: newSortByField, sortOrder: newSortOrder }) => {
+  sortByField.value = newSortByField;
+  sortOrder.value = newSortOrder;
+
+  const entries = Object.entries(apidata.value);
+  entries.sort(([keyA, valueA], [keyB, valueB]) => {
+    const fieldA = (valueA[newSortByField] || '').toLowerCase();
+    const fieldB = (valueB[newSortByField] || '').toLowerCase();
+    if (fieldA < fieldB) return newSortOrder === 'asc' ? -1 : 1;
+    if (fieldA > fieldB) return newSortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const sortedObject = Object.fromEntries(entries);
+  sortedData.value = sortedObject;
+};
+
+const paginatedData = computed(() => {
+  const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
+  const endIndex = startIndex + parseInt(selectedItem.value);
+  const dataArray = Object.values(apidata.value);
+  return dataArray.slice(startIndex, endIndex);
+});
+
+const groupedData = computed(() => {
+  return groupDataByWorker();
+});
+
+const getSuccessCountForWorker = (worker) => {
+  return apidata.value.filter(item => item.state === "SUCCESS" && item.worker === worker).length;
+};
+
+const getStartedCountForWorker = (worker) => {
+  return apidata.value.filter(item => item.state === "STARTED" && item.worker === worker).length;
+};
+
+const getFailedCountForWorker = (worker) => {
+  return apidata.value.filter(item => item.state === "FAILURE" && item.worker === worker).length;
+};
+
+const getRetriedCountForWorker = (worker) => {
+  return apidata.value.filter(item => item.retried != null && item.worker === worker).length;
+};
+
+const isOnline = (worker) => {
+  return (
+    getSuccessCountForWorker(worker) > 0 ||
+    getStartedCountForWorker(worker) > 0 ||
+    getFailedCountForWorker(worker) > 0 ||
+    getRetriedCountForWorker(worker) > 0
+  );
+};
+
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const formatRuntime = (runtime) => {
+  const hours = Math.floor(runtime / 3600);
+  const minutes = Math.floor((runtime % 3600) / 60);
+  const seconds = Math.floor(runtime % 60);
+  
+  return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+const uniqueWorkers = computed(() => {
+  const unique = new Set(); // Используем Set для хранения уникальных значений
+  apidata.value.forEach(item => {
+    unique.add(item.worker); // Добавляем значение worker в Set
+  });
+  return Array.from(unique); // Преобразуем Set обратно в массив
+});
+
+
+onMounted(async () => {
+  responseData.value = await fetchFlowerTasks(flowerId); 
+  if (responseData.value) {
+    apidata.value = Object.values(responseData.value); 
+    workerKeys.value = Object.keys(responseData.value);
+    console.log(responseData.value); 
+    updateSortedData({ sortByField: sortByField.value, sortOrder: sortOrder.value });
+    flowerData.value = await fetchFlower(flowerId);
+    updateSortedData({ sortByField: 'name', sortOrder: 'success' });
+    emit('total-pages-changed', totalPages.value);
+    emit('update:selectedItem', selectedItem.value);
+  }
+});
+
 </script>
 
-<style>
+<style scoped>
 .arrow-icon {
   position: absolute;
   right: 10px;

@@ -1,0 +1,120 @@
+.custom-button {
+    background-color: rgb(109 40 217);
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.input-field {
+  caret-color: transparent; /* Убираем стандартный курсор */
+}
+
+.custom-button:hover {
+  background-color: rgb(76 29 149);
+}
+
+.border-grid-col-cancel{
+  border-right: 10px solid red;
+}
+
+.border-grid-col-wait{
+  border-right: 10px solid indigo;
+}
+
+.border-grid-col-accept{
+  border-right: 10px solid green;
+}
+
+.border-grid-col-cancel:hover{
+  transition: 0.3s ;
+  border-right: 30px solid red;
+  border-radius: 15px;
+}
+
+.border-grid-col-wait:hover{
+  transition: 0.3s ;
+  border-right: 30px solid indigo;
+  border-radius: 15px;
+}
+
+.border-grid-col-accept:hover{
+  transition: 0.3s ;
+  border-right: 30px solid green;
+  border-radius: 15px;
+}
+
+  .status-background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Занимает всю высоту ячейки */
+  width:100%;
+}
+
+label.focused {
+  color: rgb(67 56 202);
+  font-size:18px ;
+  transition: ease 0.3s;
+  transform: translateY(-5px);
+}
+
+.modal button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    transition: all 0.3s;
+}
+
+  .logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+  }
+
+  .modal {
+  z-index: 9999; /* Установите здесь необходимый вам z-index */
+  }
+
+  .logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
+  .logo.vue:hover {
+    filter: drop-shadow(0 0 2em #42b883aa);
+  }
+
+  .modal-enter-active, .modal-leave-active {
+  transition: opacity 0.5s;
+    }
+
+    .modal-enter, .modal-leave-to {
+    opacity: 0;
+    }
+
+.cursor {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px; /* Расположение палочки слева от текста */
+  height: 20px; /* Высота палочки */
+  width: 2px; /* Ширина палочки */
+  background-color: black;
+  animation: blink 1s infinite; /* Анимация мигания */
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

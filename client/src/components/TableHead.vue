@@ -6,7 +6,7 @@
         <input
             id="items-per-page"
             :value="selectedItem"
-            @input="updateSelectedItem($event.target.value); updateCursorPos()"
+            @input="updateSelectedItem($event.target.value)"
             @focus="isOpen = true"
             @blur="isOpen = false"
             class="input-field w-24 text-center py-2 rounded-md border border-gray-300 appearance-none transition duration-300 ease-in-out cursor-pointer sm:h-13"
@@ -59,13 +59,12 @@
       <input
         type="text"
         :value="searchQuery"
-        @input="updateSearchQuery($event.target.value); updateCursorPos()"
+        @input="updateSearchQuery($event.target.value)"
         @focus="isInputFocused = true"
         @blur="isInputFocused = false"
         placeholder="Поиск..."
-        class="input-field px-2 py-1 border border-gray-300 rounded-md rounded-l-none pr-8 w-full sm:w-64 shadow-md transition-shadow transition-colors duration-300 focus:outline-none focus:border-gray-100 focus:bg-gray-100 focus:shadow-lg"
+        class="px-2 py-1 border border-gray-300 rounded-md rounded-l-none pr-8 w-full sm:w-64 shadow-md transition-shadow transition-colors duration-300 focus:outline-none focus:border-gray-100 focus:bg-gray-100 focus:shadow-lg"
       />
-      <div class="cursor" v-if="isInputFocused" :style="{ left: cursorPosition + 'px' }"></div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="absolute right-2 top-5 transform -translate-y-1/2 h-6 w-6 text-gray-400"
@@ -101,21 +100,6 @@ const options = [
   { value: '15', label: '15' },
   { value: '25', label: '25' },
 ];
-
-const updateCursorPos = () => {
-    const input = document.querySelector('.input-field');
-    const cursorPos = input.selectionStart;
-    const textBeforeCursor = searchQuery.value.substring(0, cursorPos);
-    const textWidth = getTextWidth(textBeforeCursor, input);
-    const cursorOffset = 10; 
-  
-    cursorPosition.value = textWidth + cursorOffset;
-  
-    // Если курсор находится в конце текста, прокрутим его вправо, чтобы он был видимым
-    if (cursorPos === searchQuery.value.length) {
-        input.scrollLeft = input.scrollWidth;
-    }
-};
 
   const getTextWidth = (text, input) => {
     const canvas = document.createElement('canvas');
@@ -155,7 +139,6 @@ const updateSelectedWorker = (newValue) => {
 
 const updateSearchQuery = (newValue) => {
   searchQuery.value = newValue;
-  updateCursorPos(); // Обновляем позицию курсора при изменении текста
   emit('update:searchQuery', newValue);
 };
 
@@ -170,10 +153,6 @@ const selectWorker = (value) => {
   selectedWorker.value = value; // Обновляем значение локальной переменной
   emit('update:selectedWorker', value); // Отправляем обновленное значение в родительский компонент
 };
-
-onMounted(() => {
-  updateCursorPos();
-})
 
 </script>
 

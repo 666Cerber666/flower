@@ -1,5 +1,5 @@
 <template>
-  <Header :navigation="navigation" @navigate="handleNavigation" />
+  <Header :navigation="navigation" :currentTable="currentTable" @navigate="handleNavigation" />
   <TableTasks :selectedItem="selectedItem" @update:selectedItem="updateSelectedItem" @total-pages-changed="updateTotalPages" :current-table="currentTable"  @page-changed="handlePageChange" :current-page="currentPage" v-if="currentTable === 'задачи'" :query="$route.query"/>
   <TableWorkers :selectedItem="selectedItem" @update:selectedItem="updateSelectedItem" @total-pages-changed="updateTotalPages" :current-table="currentTable" @page-changed="handlePageChange" :current-page="currentPage" v-else-if="currentTable === 'пользователи'" :query="$route.query" />
   <Pagination :selectedItem="selectedItem" :totalPages="totalPagesComputed" :currentPage="currentPage" @page-changed="handlePageChange" />
@@ -45,8 +45,6 @@ const totalPagesComputed = computed(() => {
     return totalPagesTasks.value;
   } else if (currentTable.value === 'пользователи') {
     return totalPagesWorkers.value;
-  } else if (currentTable.value === 'заказчики') {
-    return totalPagesBrokers.value;
   }
 });
 
@@ -55,8 +53,6 @@ const updateTotalPages = (pages) => {
     totalPagesTasks.value = pages;
   } else if (currentTable.value === 'пользователи') {
     totalPagesWorkers.value = pages;
-  } else if (currentTable.value === 'заказчики') {
-    totalPagesBrokers.value = pages;
   }
 };
 

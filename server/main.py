@@ -277,3 +277,26 @@ async def get_tasks(flower_id: int, flower_data: dict = Depends(get_flower)):
         logger.error(f"Error getting tasks: {e}")
         raise
 
+@app.get("/tasks/info/{task_uuid}")
+async def get_task_info(task_uuid: str, flower_data: dict = Depends(get_flower)):
+    try:
+        api = FlowerApi(flower_data['login'], flower_data['password'], flower_data['ip'], flower_data['port'])
+        task_info = api.get_task_info(task_uuid) 
+        return task_info
+    except Exception as e:
+        logger.error(f"Error getting task info: {e}")
+        raise
+
+@app.post("/apply/task/{task_name}")
+async def apply_task(task_name: str, background_tasks: BackgroundTasks, flower_data: dict = Depends(get_flower)):
+    try:
+        api = FlowerApi(flower_data['login'], flower_data['password'], flower_data['ip'], flower_data['port'])
+        result = api.task_apply_async(task_name)
+        # Здесь можно добавить логику обработки результата, если нужно
+        return {"message": "Task applied successfully", "result": result}
+    except Exception as e:
+        logger.error(f"Error applying task: {e}")
+        raise
+
+
+

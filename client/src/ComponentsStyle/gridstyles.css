@@ -27,6 +27,10 @@
   border-right: 10px solid indigo;
 }
 
+.border-grid-col-rec{
+  border-right: 10px solid yellow;
+}
+
 .border-grid-col-accept{
   border-right: 10px solid green;
 }
@@ -40,6 +44,12 @@
 .border-grid-col-wait:hover{
   transition: 0.3s ;
   border-right: 30px solid indigo;
+  border-radius: 15px;
+}
+
+.border-grid-col-rec:hover{
+  transition: 0.3s ;
+  border-right: 30px solid yellow;
   border-radius: 15px;
 }
 

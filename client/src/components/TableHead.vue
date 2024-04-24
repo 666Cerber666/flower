@@ -1,16 +1,16 @@
 <template>
-  <div class="flex flex-col sm:flex-row justify-between items-center mb-4">
-    <div class="flex mb-2 sm:mb-0">
+  <div class="flex flex-col md:flex-row sm:gap-4 justify-between items-center mb-4">
+    <div class="flex mb-2">
       <div class="relative mr-4">
         <label for="items-per-page">Количество элементов:</label>
         <input
-          id="items-per-page"
-          :value="selectedItem"
-          @input="updateSelectedItem($event.target.value); updateCursorPos"
-          @focus="isOpen = true"
-          @blur="isOpen = false"
-          class="input-field w-24 sm:w-32 text-center py-2 rounded-md border border-gray-300 appearance-none transition duration-300 ease-in-out cursor-pointer"
-        />
+            id="items-per-page"
+            :value="selectedItem"
+            @input="updateSelectedItem($event.target.value); updateCursorPos()"
+            @focus="isOpen = true"
+            @blur="isOpen = false"
+            class="input-field w-24 text-center py-2 rounded-md border border-gray-300 appearance-none transition duration-300 ease-in-out cursor-pointer sm:h-13"
+          />
         <transition name="slide-fade">
           <ul
             v-if="isOpen"
@@ -55,11 +55,11 @@
       </div>
     </div>
 
-    <div class="relative w-full sm:w-auto rounded">
+    <div class="relative w-auto rounded">
       <input
         type="text"
         :value="searchQuery"
-        @input="updateSearchQuery($event.target.value)"
+        @input="updateSearchQuery($event.target.value); updateCursorPos()"
         @focus="isInputFocused = true"
         @blur="isInputFocused = false"
         placeholder="Поиск..."
@@ -110,7 +110,12 @@ const updateCursorPos = () => {
     const cursorOffset = 10; 
   
     cursorPosition.value = textWidth + cursorOffset;
-  };
+  
+    // Если курсор находится в конце текста, прокрутим его вправо, чтобы он был видимым
+    if (cursorPos === searchQuery.value.length) {
+        input.scrollLeft = input.scrollWidth;
+    }
+};
 
   const getTextWidth = (text, input) => {
     const canvas = document.createElement('canvas');
@@ -150,7 +155,7 @@ const updateSelectedWorker = (newValue) => {
 
 const updateSearchQuery = (newValue) => {
   searchQuery.value = newValue;
-  updateCursorPos(); // Обновляем также позицию курсора при изменении текста
+  updateCursorPos(); // Обновляем позицию курсора при изменении текста
   emit('update:searchQuery', newValue);
 };
 

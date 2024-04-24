@@ -4,7 +4,7 @@
       <div class="relative flex h-16 items-center justify-between">
         <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
           <!-- Mobile menu button-->
-          <DisclosureButton class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+          <DisclosureButton v-if="CurrentNamePage === 'Tables'" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
             <span class="absolute -inset-0.5" />
             <span class="sr-only">Открыть главное меню</span>
             <Bars3Icon v-if="!open" class="block h-6 w-6" aria-hidden="true" />
@@ -16,7 +16,7 @@
             <div class="flex flex-shrink-0 items-center">
               <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
             </div>
-            </router-link>
+          </router-link>
           <div class="hidden sm:ml-6 sm:block">
             <div class="flex space-x-4">
               <a v-for="item in navigation" :key="item.name" @click="handleNavigation(item)" 
@@ -25,9 +25,7 @@
             </div>
           </div>
         </div>
-          <themeSwitcher/>
         <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-
           <!-- Profile dropdown -->
           <Menu as="div" class="relative ml-3">
             <div>
@@ -43,9 +41,6 @@
                   <router-link to="/profile" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Профиль</router-link>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                  <router-link to="/register" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Настройки</router-link>
-                </MenuItem>
-                <MenuItem v-slot="{ active }">
                   <a @click="logout" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Выйти</a>
                 </MenuItem>
               </MenuItems>
@@ -57,25 +52,37 @@
 
     <DisclosurePanel class="sm:hidden">
       <div class="space-y-1 px-2 pb-3 pt-2">
-        <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href" 
-           :class="{'bg-gray-900 text-white': item.current, 'text-gray-300 hover:bg-gray-700 hover:text-white': !item.current, 'block rounded-md px-3 py-2 text-base font-medium cursor-pointer': true}" 
-           :aria-current="item.current ? 'page' : undefined">{{ item.name }}</DisclosureButton>
-      </div>
-    </DisclosurePanel>
+          <a v-for="item in navigation" :key="item.name" @click="handleNavigation(item)" 
+             :class="{'bg-gray-900 text-white': item.current, 'text-gray-300 hover:bg-gray-700 hover:text-white': !item.current, 'block rounded-md px-3 py-2 text-base font-medium cursor-pointer': true}"
+             :aria-current="item.current ? 'page' : undefined">{{ item.name }}</a>
+        </div>
+      </DisclosurePanel>
   </Disclosure>
 </template>
+
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
-import themeSwitcher from '../components/ThemeSwitcher.vue'
 
 const router = useRouter();
+const CurrentNamePage = router.currentRoute.value.name;
+
+const nameMapping = {
+  'задачи': 'tasks',
+  'пользователи': 'TableWorkers',
+  // Добавьте сюда другие соответствия, если необходимо
+};
+
+const getEnglishName = (currentTable) => {
+  return nameMapping[currentTable] || currentTable.toLowerCase();
+};
 
 const props = defineProps({
-  navigation: Array // передаем navigation как пропс
+  navigation: Array,
+  currentTable: String
 })
 
 const emits = defineEmits(['navigate']) // определяем событие для передачи в родительский компонент

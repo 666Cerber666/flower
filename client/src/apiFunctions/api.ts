@@ -76,4 +76,24 @@ export const fetchFlowerTasks = async (flowerId: string) => {
   }
 };
 
+export const fetchTaskInfo = async (flowerId: number, taskUuid: string) => {
+  try {
+    const response = await axios.get(`${baseURL}tasks/info/${taskUuid}?flower_id=${flowerId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching task info:', error);
+    throw error;
+  }
+};
+
+export const applyTask = async (flowerId: number, taskName: string): Promise<any> => {
+  try {
+    const response: AxiosResponse<any> = await axios.post(`${baseURL}apply/task/${taskName}?flower_id=${flowerId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error applying task:', error);
+    throw error;
+  }
+};
+
 

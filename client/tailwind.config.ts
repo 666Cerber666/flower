@@ -12,6 +12,7 @@ export default {
         '32': '32px',
       },
     },
+
   },
   plugins: [],
 }

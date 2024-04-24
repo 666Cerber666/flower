@@ -51,6 +51,7 @@ const sortBy = (field) => {
 
   emits('sortedData', { sortByField: field, sortOrder: newSortOrder });
 };
+
 </script>
 
 <style scoped>

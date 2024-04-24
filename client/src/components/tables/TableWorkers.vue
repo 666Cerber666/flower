@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <TableHead @update:selectedWorker="updateSelectedWorker" :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery" :workers="workers.length ? workers : []"/>
+    <TableHead :searchQuery="searchQuery" @update:selectedItem="updateSelectedItem" @update:searchQuery="updateSearchQuery" :workers="workers.length ? workers : []"/>
 
     <div class="overflow-x-auto">
       <table class="w-full border-collapse border mb-16">
@@ -32,7 +32,6 @@ import axios from 'axios';
 const route = useRoute();
 const apidata = ref([]);
 const workerKeys = ref([]);
-const filteredData = ref([]);
 const responseData = ref(null);
 const flowerData = ref(null);
 const flowerId = route.query.flowerId;
@@ -42,7 +41,6 @@ const sortByField = ref('name'); // Field to sort by
 const sortOrder = ref('asc'); // Sort order (asc/desc)
 const selectedItem = ref('10');
 const workers = ref([]);
-const selectedWorker = ref('');
 
 const props = defineProps({
   currentPage: Number,
@@ -70,13 +68,9 @@ const groupDataByWorker = () => {
   return grouped;
 };
 
-const updateSelectedWorker = (newValue) => {
-  selectedWorker.value = newValue; // Обновляем значение selectedWorker
-};
-
 const totalPages = computed(() => {
   const selectedItemValue = parseInt(selectedItem.value);
-  const totalItems = uniqueWorkers.length;
+  const totalItems = Object.keys(groupedData.value).length;
   if (totalItems <= selectedItemValue) {
     return 1; // Вернуть 1, если количество элементов меньше или равно selectedItem
   } else {
@@ -179,14 +173,21 @@ onMounted(async () => {
   if (responseData.value) {
     apidata.value = Object.values(responseData.value); 
     workerKeys.value = Object.keys(responseData.value);
-    console.log(responseData.value); 
     updateSortedData({ sortByField: sortByField.value, sortOrder: sortOrder.value });
     flowerData.value = await fetchFlower(flowerId);
     updateSortedData({ sortByField: 'name', sortOrder: 'success' });
-    emit('total-pages-changed', totalPages.value);
     emit('update:selectedItem', selectedItem.value);
+    emit('total-pages-changed', totalPages.value)
   }
 });
+
+watch(responseData, () => {
+  if (responseData.value) {
+    workerKeys.value = Object.keys(responseData.value);
+    emit('total-pages-changed', totalPages.value);
+  }
+});
+
 
 </script>
 

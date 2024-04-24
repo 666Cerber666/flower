@@ -6,7 +6,7 @@
       <table class="w-full border-collapse border mb-16">
         <TableTH :currentPage="currentPage" :sortByField="sortByField" :sortOrder="sortOrder" @sortedData="updateSortedData"/>
         <tbody>
-          <tr v-for="(item, index) in filteredData" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
+          <tr v-for="(item, index) in paginatedData" :key="index" :class="{ 'bg-gray-100': index % 2 !== 0 }">
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.name }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">{{ item.uuid }}</td>
             <td class="px-4 py-2 sm:py-3 md:py-4 lg:py-5 xl:py-6 text-center">
@@ -72,13 +72,11 @@ const updateSelectedWorker = (newValue) => {
 
 const totalPages = computed(() => {
     const selectedItemValue = parseInt(selectedItem.value);
-    const totalItems = Object.values(apidata.value).length;
-    if (totalItems <= selectedItemValue) {
-        return 1; // Вернуть 1, если количество элементов меньше или равно selectedItem
-    } else {
-        return Math.ceil(totalItems / selectedItemValue);
-    }
+    const filteredSortedDataLength = filteredAndSortedData.value.length; // Обновляем количество элементов на основе filteredAndSortedData
+    const totalFilteredItems = filteredSortedDataLength <= selectedItemValue ? filteredSortedDataLength : filteredSortedDataLength / selectedItemValue;
+    return Math.ceil(totalFilteredItems);
 });
+
 
 const updateSearchQuery = (query) => {
     searchQuery.value = query;
@@ -94,8 +92,15 @@ const updateSortedData = ({ sortByField: newSortByField, sortOrder: newSortOrder
 
     const entries = Object.entries(apidata.value);
     entries.sort(([keyA, valueA], [keyB, valueB]) => {
-        const fieldA = (valueA[newSortByField] || '').toLowerCase();
-        const fieldB = (valueB[newSortByField] || '').toLowerCase();
+        let fieldA = valueA[newSortByField];
+        let fieldB = valueB[newSortByField];
+
+        // Преобразуем временные значения в числа для корректной сортировки
+        if (['started', 'received', 'runtime'].includes(newSortByField)) {
+            fieldA = new Date(fieldA).getTime();
+            fieldB = new Date(fieldB).getTime();
+        }
+
         if (fieldA < fieldB) return newSortOrder === 'asc' ? -1 : 1;
         if (fieldA > fieldB) return newSortOrder === 'asc' ? 1 : -1;
         return 0;
@@ -105,36 +110,30 @@ const updateSortedData = ({ sortByField: newSortByField, sortOrder: newSortOrder
     sortedData.value = sortedObject;
 };
 
-const paginatedData = computed(() => {
-    const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
-    const endIndex = startIndex + parseInt(selectedItem.value);
-    const dataArray = Object.values(apidata.value);
-    return dataArray.slice(startIndex, endIndex);
-});
-
-const combinedData = computed(() => {
-    const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
-    const endIndex = startIndex + parseInt(selectedItem.value);
+const filteredAndSortedData = computed(() => {
     const dataArray = Object.values(sortedData.value);
-    const paginatedArray = dataArray.slice(startIndex, endIndex);
-    return paginatedArray;
-});
+    const query = searchQuery.value ? searchQuery.value.trim().toLowerCase() : '';
+    const worker = selectedWorker.value ? selectedWorker.value.toLowerCase() : '';
 
-const filteredData = computed(() => {
-    if (!searchQuery.value.trim() && !selectedWorker.value) {
-        // Если строка поиска пуста и выбранный воркер не установлен, верните все данные
-        return combinedData.value;
+    if (!query && !worker) {
+        // Если строка поиска пуста и выбранный воркер не установлен, верните отсортированные данные без фильтрации
+        return dataArray;
     } else {
         // Иначе фильтруйте данные на основе searchQuery и/или selectedWorker
-        const query = searchQuery.value.trim().toLowerCase();
-        const worker = selectedWorker.value.toLowerCase();
-        return combinedData.value.filter(item => {
-            // Фильтруйте данные по значениям полей name и worker
-            const nameMatches = item.name.toLowerCase().includes(query);
-            const workerMatches = worker ? item.worker.toLowerCase() === worker : true; // Если выбран воркер, проверяем его соответствие
+        return dataArray.filter(item => {
+            // Фильтрация данных по значениям полей name и worker
+            const nameMatches = item.name && item.name.toLowerCase().includes(query); // Добавляем проверку на пустое значение или null
+            const workerMatches = worker ? (item.worker && item.worker.toLowerCase() === worker) : true; // Добавляем проверку на пустое значение или null
             return nameMatches && workerMatches;
         });
     }
+});
+
+
+const paginatedData = computed(() => {
+    const startIndex = (props.currentPage - 1) * parseInt(selectedItem.value);
+    const endIndex = startIndex + parseInt(selectedItem.value);
+    return filteredAndSortedData.value.slice(startIndex, endIndex);
 });
 
 const formatTimestamp = (timestamp) => {
@@ -181,7 +180,7 @@ onMounted(async () => {
 });
 
 
-watch(selectedItem, (newValue, oldValue) => {
+watch([selectedItem, selectedWorker, searchQuery], ([newValue, newWorker, newQuery], [oldValue, oldWorker, oldQuery]) => {
   selectedItem.value = newValue;
   emit('update:selectedItem', newValue);
   emit('total-pages-changed', totalPages.value);

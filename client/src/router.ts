@@ -4,6 +4,7 @@ import Register from './pages/Register.vue';
 import Tables from './pages/Tables.vue';
 import WorkerTasks from './pages/WorkerTasks.vue';
 import Profile from './pages/Profile.vue';
+import TaskInfo from './pages/TaskInfo.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,6 +35,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/WorkerTasks',
     name: 'WorkerTasks',
     component: WorkerTasks,
+    meta: { requiresAuth: true } // Разрешаем доступ всем пользователям
+  },
+  {
+    path: '/TaskInfo',
+    name: 'TaskInfo',
+    component: TaskInfo,
     meta: { requiresAuth: true } // Разрешаем доступ всем пользователям
   },
 ];

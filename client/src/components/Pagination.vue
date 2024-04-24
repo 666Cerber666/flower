@@ -1,12 +1,23 @@
 <template>
   <div :class="{ 'dark-theme': isDarkTheme }" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 fixed bottom-0 left-0 w-full bg-white shadow-md p-4">
     <!-- Навигация для мобильных устройств -->
-    <div class="flex flex-1 justify-between sm:hidden">
-      <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
-      <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+    <div class="flex flex-1 justify-between sm:flex md:hidden">
+      <a :class="{ 'dark-theme-text': isDarkTheme }" class="cursor-pointer relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" @click="goToPreviousPage">
+        <span class="sr-only">Предыдущая</span>
+        <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
+      </a>
+        <template v-for="page in nearestPages">
+          <a href="#" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" :class="{ 'bg-indigo-600 text-white': page === currentPage }" @click="goToPage(page)">
+            {{ page }}
+          </a>
+        </template>
+      <a :class="{ 'dark-theme-text': isDarkTheme }" class="cursor-pointer relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" @click="goToNextPage">
+        <span class="sr-only">Следующая</span>
+        <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
+      </a>
     </div>
     <!-- Навигация для десктопных устройств -->
-    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+    <div class="hidden md:flex flex-1 items-center justify-between">
       <div>
         <p :class="{ 'dark-theme-text': isDarkTheme }" class="text-sm text-gray-700">
           Показаны

@@ -1,8 +1,8 @@
 <template>
     <Header />
     <div class="p-6">
-      <div class="flex justify-between items-center mb-4">
-        <div class="relative w-full sm:w-auto rounded">
+      <div class="flex justify-between items-center mb-4 gap-4">
+        <div class="relative w-auto rounded">
           <input
               type="text"
               v-model="searchQuery"
@@ -10,7 +10,7 @@
               @focus="isInputFocused = true"
               @blur="isInputFocused = false"
               placeholder="Поиск..."
-              class="input-field px-2 py-1 border border-gray-300 rounded-md rounded-l-none pr-8 w-full sm:w-64 shadow-md transition-shadow transition-colors duration-300 focus:outline-none focus:border-gray-100 focus:bg-gray-100 focus:shadow-lg"
+              class="input-field px-2 py-1 border border-gray-300 rounded-md rounded-l-none pr-8 w-full sm:w-full shadow-md transition-shadow transition-colors duration-300 focus:outline-none focus:border-gray-100 focus:bg-gray-100 focus:shadow-lg"
             />
           <div class="cursor" v-if="isInputFocused" :style="{ left: cursorPosition + 'px' }"></div>
           <svg xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +22,7 @@
           </svg>
         </div>
         <div>
-          <button @click="showModal = true" class="bg-violet-600 hover:bg-violet-900 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700">Добавить Flower</button>
+          <button @click="showModal = true" class="bg-violet-600 hover:bg-violet-900 w-full text-white font-bold py-2 px-4 rounded hover:bg-indigo-700">Добавить Flower</button>
         </div>
       </div>
 
@@ -34,12 +34,12 @@
             <div class='status-background rounded-full font-bold p-2'><p :class="[getTextStatusColor(item.status)]">{{item.status}}</p></div>
         </div>
         <div class="w-full text-center font-bold flex items-center justify-center">
-            <button @click="handleDeleteClick(item.id)" class="bg-violet-600 hover:bg-violet-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button @click="handleDeleteClick(item.id)" class="bg-violet-600 hover:bg-violet-900 text-white font-bold py-2 px-4 sm:w-auto rounded focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
                 Удалить
-            </button>
+              </button>
         </div>
     </div>
 </div>
@@ -51,7 +51,7 @@
               <div v-if="showModal" @click="closeModal" class="modal fixed inset-0 bg-black opacity-50">
               </div>
               <div v-if="showModal" class="fixed modal inset-0 flex items-center justify-center" @click.self="closeModal">
-                <div class="bg-white p-8 rounded-lg shadow-xl w-3/6">
+                <div class="bg-white p-8 rounded-lg shadow-xl w-1/2 sm:w-full">
                 <h2 class="text-2xl font-bold mb-4">Добавить Flower</h2>
                 <form @submit.prevent="addFlowerItem">
                     <div class="mb-4 flex flex-col">
@@ -74,9 +74,9 @@
                     <label for="name" class="text-gray-700 text-sm font-bold mb-2 flex items-start" :class="{ 'focused': isFieldFocused('password') }">PASSWORD:</label>
                     <input type="text" @focus="setFieldFocused('password', true)" @blur="setFieldFocused('password', false)" v-model="newFlower.password" id="password" name="password" class="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     </div>
-                    <div class="flex justify-end mb-4">
-                    <button type="submit" class="bg-gray-800 text-white font-bold py-2 px-4 mr-2 rounded hover:bg-indigo-700">Добавить</button>
-                    <button @click="closeModal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Отмена</button>
+                    <div class="flex justify-end mb-4 flex-col sm:flex-row">
+                      <button type="submit" class="bg-gray-800 text-white font-bold py-2 px-4 mr-2 rounded mb-2 sm:mb-0 sm:mr-2 hover:bg-indigo-700">Добавить</button>
+                      <button @click="closeModal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded sm:mb-0 sm:mr-2">Отмена</button>
                     </div>
                 </form>
               </div>

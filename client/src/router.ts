@@ -51,7 +51,7 @@ const router = createRouter({
 });
 
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   const role = localStorage.getItem('role');
   // Проверяем требуется ли аутентификация для доступа к маршруту
   if (to.meta.requiresAuth && role !== 'auth') {

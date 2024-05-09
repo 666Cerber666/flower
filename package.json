@@ -3,6 +3,6 @@
     "axios": "^1.6.8"
   },
   "scripts": {
-    "build": "npm run build"
+    "build": "npm install && npm run build"
   }
 }

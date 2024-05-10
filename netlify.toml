@@ -4,3 +4,7 @@
   # Директория сборки клиентской части
   publish = "client/dist"
 
+[[functions]]
+  name = "server"
+  path = "server/main.py"
+  runtime = "python3.8"

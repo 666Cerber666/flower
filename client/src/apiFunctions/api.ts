@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const baseURL = 'http://localhost:8000/';
+const baseURL = 'http://92.39.213.116:8092/';
 
 interface Flower {
   id: number;

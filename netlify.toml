@@ -6,5 +6,5 @@
 
 [[functions]]
   name = "server"
-  path = "server/main"
+  path = "server/main.py"
   runtime = "python3.8"

@@ -63,7 +63,7 @@ const formData = ref({
 
 const registerUser = async () => {
   try {
-    const response = await axios.post('http://localhost:8000/register', formData.value);
+    const response = await axios.post('http://92.39.213.116:8092/register', formData.value);
 
     if (response.status >= 200 && response.status < 300) {
       console.log('Пользователь успешно зарегистрирован:', response.data);

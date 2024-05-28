@@ -55,7 +55,7 @@ const router = useRouter();
 
 const loginUser = async () => {
   try {
-    const response = await axios.post('http://92.39.213.116:8092/login', {
+    const response = await axios.post('http://app.flowerhub.projects.mdautomation.ru/login', {
       username: username.value,
       password: password.value
     });

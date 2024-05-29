@@ -8,14 +8,18 @@
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form class="space-y-6" @submit.prevent="registerUser">
             <div>
-            <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Имя пользователя</label>
+              <div class="flex items-center justify-between">
+                <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Имя пользователя</label>
+              </div>
             <div class="mt-2">
               <input v-model="formData.username" id="username" name="username" type="text" autocomplete="username" required="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
             </div>
           </div>
 
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Почтовый адрес</label>
+            <div class="flex items-center justify-between">
+              <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Почтовый адрес</label>
+            </div>
             <div class="mt-2">
               <input v-model="formData.email" id="email" name="email" type="email" autocomplete="email" required="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
             </div>

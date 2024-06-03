@@ -51,7 +51,7 @@
               <div v-if="showModal" @click="closeModal" class="modal fixed inset-0 bg-black opacity-50">
               </div>
               <div v-if="showModal" class="fixed modal inset-0 flex items-center justify-center" @click.self="closeModal">
-                <div class="bg-white p-8 rounded-lg shadow-xl w-1/2 sm:w-full">
+                <div class="bg-white p-8 rounded-lg shadow-xl w-1/2 sm:w-3/4">
                 <h2 class="text-2xl font-bold mb-4">Добавить Flower</h2>
                 <form @submit.prevent="addFlowerItem">
                     <div class="mb-4 flex flex-col">

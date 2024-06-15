@@ -73,7 +73,9 @@ def create_flowers_table(conn: Connection):
         port TEXT,
         login TEXT,
         password TEXT,
-        status TEXT DEFAULT 'disconnected' 
+        status TEXT DEFAULT 'disconnected'
+        user_id INTEGER,
+        FOREIGN KEY (user_id) REFERENCES users (id) 
     )
     ''')
 
@@ -106,6 +108,7 @@ class Flower(BaseModel):
     login: str
     password: str
     status: Optional[str]  # Сделаем поле необязательным
+    user_id: int
 
 # Регистрация нового пользователя
 @app.post('/register', response_model=User)
@@ -151,7 +154,6 @@ async def check_api_connection(ip: str, port: str, login: str, password: str) ->
     except requests.RequestException:
         return "Not Completed"  # Если возникла ошибка, возвращаем только статус
 
-# Добавление цветка
 @app.post("/add_flower")
 async def create_flower(flower: Flower, background_tasks: BackgroundTasks):
     async def add_flower_task(flower: Flower):
@@ -159,20 +161,19 @@ async def create_flower(flower: Flower, background_tasks: BackgroundTasks):
         try:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO flowers (name, ip, port, login, password, status) VALUES (?, ?, ?, ?, ?, ?)
-            ''', (flower.name, flower.ip, flower.port, flower.login, flower.password, "In Progress"))
+                INSERT INTO flowers (name, ip, port, login, password, status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (flower.name, flower.ip, flower.port, flower.login, flower.password, "In Progress", flower.user_id))
             flower_id = cursor.lastrowid
             conn.commit()
             cursor.close()
 
-            # Устанавливаем статус только после проверки подключения к API
+            # Update status after attempting to connect to the flower
             await update_flower_status(flower_id, flower.ip, flower.port, flower.login, flower.password)
         finally:
             conn.close()
 
     background_tasks.add_task(add_flower_task, flower)
     return {"message": "Flower addition initiated", "status": "In Progress"}
-
 
 async def update_flower_status(flower_id: int, ip: str, port: str, login: str, password: str):
     try:
@@ -209,11 +210,11 @@ async def delete_flower(flower_id: int, background_tasks: BackgroundTasks):
 
 
 @app.get("/flowers")
-async def get_flowers(background_tasks: BackgroundTasks):
+async def get_flowers(user_id: int, background_tasks: BackgroundTasks):
     try:
         conn = sqlite3.connect('flowers.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT id, name, ip, port, login, status, password FROM flowers')
+        cursor.execute('SELECT id, name, ip, port, login, status, password FROM flowers WHERE user_id = ?', (user_id,))
         flowers_data = cursor.fetchall()
         
         flowers = []

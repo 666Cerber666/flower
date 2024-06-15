@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const baseURL = 'https://app.flowerhub.projects.mdautomation.ru';
+const baseURL = 'http://app.flowerhub.projects.mdautomation.ru/';
 
 interface Flower {
   id: number;
@@ -10,6 +10,7 @@ interface Flower {
   login: string;
   status: string;
   password: string;
+  user_id: number;
 }
 
 export const fetchFlowers = async (): Promise<Flower[]> => {

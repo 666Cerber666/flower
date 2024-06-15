@@ -59,11 +59,13 @@ const loginUser = async () => {
   try {
     const response = await axios.post('http://app.flowerhub.projects.mdautomation.ru/login', {
       username: username.value,
-      password: password.value
+      password: password.value,
     });
 
     if (response.status === 200) {
+      const userId = response.data.user_id;
       localStorage.setItem('role', 'auth');
+      localStorage.setItem('user_id', userId);
       router.push('/Profile');
     }
   } catch (error) {

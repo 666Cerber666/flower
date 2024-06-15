@@ -43,7 +43,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Добавление middleware для CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://flowerhub.projects.mdautomation.ru"],
     allow_credentials=True,
     allow_methods=["POST", "GET", "DELETE", "OPTIONS"],  # Разрешаем метод GET для вывода цветов
     allow_headers=["Content-Type"],
